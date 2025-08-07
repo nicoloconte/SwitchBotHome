@@ -1,0 +1,27 @@
+logging:
+  level:
+    root: INFO
+    it.myhouse.switchbot: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Log dei parametri bindati
+  file:
+    name: logs/switchbot.log
+    max-size: 10MB
+    total-size-cap: 100MB
+    max-history: 10
+
+spring:
+  datasource:
+    url: jdbc:postgresql://switchback.proxy.rlwy.net:50361/railway
+    username: postgres
+    password: OzfemynQxWBLsjVrwHMiBmVBveYboGQe
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create  # Altri valori: none, validate, create, create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
