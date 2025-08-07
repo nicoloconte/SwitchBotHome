@@ -33,7 +33,7 @@ public class DeviceStatusScheduler {
             List<DeviceStatus> statuses = service.getDevicesStatus();
             logger.info("Dispositivi ricevuti: {}", statuses.size());
 
-            statuses.forEach(repository::save);
+            //statuses.forEach(repository::save);
         } catch (Exception e) {
             logger.error("Errore durante il fetch dei device status", e);
         }
@@ -45,7 +45,7 @@ public class DeviceStatusScheduler {
 
         try {
             long oneDayAgo = Instant.now().minusSeconds(24 * 3600).toEpochMilli();
-            repository.deleteOlderThan(oneDayAgo);
+            //repository.deleteOlderThan(oneDayAgo);
         } catch (Exception e) {
             logger.error("Errore durante l'eliminazione dei dati vecchi", e);
         }

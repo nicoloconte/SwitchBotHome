@@ -8,6 +8,7 @@ import it.myhouse.switchbot.model.api.ApiResponse;
 import it.myhouse.switchbot.service.SwitchBotApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,12 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
     private static final String HMAC_SHA_256 = "HmacSHA256";
     private static final String BASE_URL = "https://api.switch-bot.com/v1.1/devices";
     private static final String METER_PLUS = "MeterPlus";
-    private static final String TOKEN = "c85bf418c6bdc031ff84fe0512337b6124b9776a873f535755d402c1e8c9151182272f57602e4c98943cad18dc460ee5";
-    private static final String SECRET = "18af6e425a6f3636806cbc49dbb88e80";
+
+    @Value("${SWITCHBOT_TOKEN:${switchbot.token}}")
+    private String token;
+
+    @Value("${SWITCHBOT_SECRET:${switchbot.secret}}")
+    private String secret;
 
     @Override
     public DeviceList getDeviceList() throws Exception {
@@ -74,17 +79,17 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
     }
 
 
-    private static String generateSignature() throws Exception {
-        String data = TOKEN + Instant.now().toEpochMilli() + UUID.randomUUID() + Math.random();
+    private String generateSignature() throws Exception {
+        String data = token + Instant.now().toEpochMilli() + UUID.randomUUID() + Math.random();
         Mac mac = Mac.getInstance(HMAC_SHA_256);
-        mac.init(new SecretKeySpec(SECRET.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256));
+        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256));
         return Base64.getEncoder().encodeToString(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)));
     }
 
-    private static HttpRequest createRequest(String signature, String url) {
+    private HttpRequest createRequest(String signature, String url) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("Authorization", TOKEN)
+                .header("Authorization", token)
                 .header("sign", signature)
                 .header("nonce", UUID.randomUUID().toString())
                 .header("t", String.valueOf(Instant.now().toEpochMilli()))
