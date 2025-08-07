@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +20,17 @@ public class AppStartupLogger {
     public void logConfiguration() {
         logger.info("=== CONFIGURATION SUMMARY ===");
 
-        logMasked("SWITCHBOT_TOKEN", env.getProperty("switchbot.token"));
-        logMasked("SWITCHBOT_SECRET", env.getProperty("switchbot.secret"));
-
-        log("DB URL", env.getProperty("spring.datasource.url"));
-        log("DB USER", env.getProperty("spring.datasource.username"));
+        if (env instanceof ConfigurableEnvironment configurableEnv) {
+            for (var propertySource : configurableEnv.getPropertySources()) {
+                if (propertySource.getSource() instanceof java.util.Map map) {
+                    map.forEach((key, value) -> {
+                        logger.info("{} = {}", key, value);
+                    });
+                }
+            }
+        } else {
+            logger.warn("Environment is not configurable, can't list properties");
+        }
 
         logger.info("==============================");
     }
