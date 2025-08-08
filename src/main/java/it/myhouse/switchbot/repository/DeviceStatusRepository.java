@@ -11,6 +11,6 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Long
     @Transactional
     @Modifying
     @Query("DELETE FROM DeviceStatus d WHERE d.timestamp < :cutoff")
-    void deleteOlderThan(long cutoff);
+    public int deleteOlderThan(long cutoff);
 
 }

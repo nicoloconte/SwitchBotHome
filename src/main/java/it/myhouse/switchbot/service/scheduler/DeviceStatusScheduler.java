@@ -1,11 +1,10 @@
-package it.myhouse.switchbot.service.sheduler;
+package it.myhouse.switchbot.service.scheduler;
 
 import it.myhouse.switchbot.model.DeviceStatus;
 import it.myhouse.switchbot.repository.DeviceStatusRepository;
 import it.myhouse.switchbot.service.SwitchBotApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,16 +15,19 @@ import java.util.List;
 public class DeviceStatusScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(DeviceStatusScheduler.class);
+
     private final DeviceStatusRepository repository;
     private final SwitchBotApiService service;
 
-    @Autowired
-    public DeviceStatusScheduler(SwitchBotApiService switchBotApiService, DeviceStatusRepository repository) {
-        this.service = switchBotApiService;
+    public DeviceStatusScheduler(SwitchBotApiService service, DeviceStatusRepository repository) {
+        this.service = service;
         this.repository = repository;
     }
 
-    @Scheduled(fixedRate = 300000)
+    /**
+     * Recupera periodicamente lo stato dei dispositivi ogni 5 minuti.
+     */
+    @Scheduled(fixedRate = 300_000)
     public void fetchDevicesStatusPeriodically() {
         logger.info("Esecuzione schedulata: fetchDevicesStatusPeriodically");
 
@@ -33,19 +35,26 @@ public class DeviceStatusScheduler {
             List<DeviceStatus> statuses = service.getDevicesStatus();
             logger.info("Dispositivi ricevuti: {}", statuses.size());
 
-            //statuses.forEach(repository::save);
+            statuses.forEach(repository::save);
         } catch (Exception e) {
             logger.error("Errore durante il fetch dei device status", e);
         }
     }
 
-    @Scheduled(fixedRate = 600000)
+    /**
+     * Elimina i dati più vecchi di una settimana ogni 10 minuti.
+     */
+    @Scheduled(fixedRate = 600_000)
     public void cleanOldData() {
         logger.info("Esecuzione schedulata: cleanOldData");
 
         try {
-            long oneDayAgo = Instant.now().minusSeconds(24 * 3600).toEpochMilli();
-            //repository.deleteOlderThan(oneDayAgo);
+            long oneWeekAgo = Instant.now()
+                    .minusSeconds(7L * 24 * 3600)
+                    .toEpochMilli();
+
+            int deletedRows = repository.deleteOlderThan(oneWeekAgo);
+            logger.debug("Eliminati {} record più vecchi di una settimana", deletedRows);
         } catch (Exception e) {
             logger.error("Errore durante l'eliminazione dei dati vecchi", e);
         }
