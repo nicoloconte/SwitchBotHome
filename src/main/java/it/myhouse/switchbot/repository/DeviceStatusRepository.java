@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,5 +23,8 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Long
                 ORDER BY device_id, created_at DESC
             """, nativeQuery = true)
     List<DeviceStatus> findLatestForEachDevice();
+
+    @Query("SELECT d FROM DeviceStatus d WHERE d.deviceId = :deviceId AND d.createdAt >= :since")
+    List<DeviceStatus> findAllByDeviceIdAndCreatedAtAfter(@Param("deviceId") String deviceId, @Param("since") Instant since);
 
 }

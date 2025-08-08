@@ -20,6 +20,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -103,6 +104,13 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
         List<DeviceStatus> latestStatuses = repository.findLatestForEachDevice();
         logger.debug("Retrieved {} latest device statuses from DB", latestStatuses.size());
         return latestStatuses;
+    }
+
+    public List<DeviceStatus> getDeviceStatusLast24Hours(String deviceId) {
+        Instant now = Instant.now();
+        Instant yesterday = now.minus(24, ChronoUnit.HOURS);
+        logger.debug("Fetching device status for deviceId {} from last 24 hours", deviceId);
+        return repository.findAllByDeviceIdAndCreatedAtAfter(deviceId, yesterday);
     }
 
     /**

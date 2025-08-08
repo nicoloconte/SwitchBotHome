@@ -12,4 +12,6 @@ public interface SwitchBotApiService {
     List<DeviceStatus> getDevicesStatus() throws Exception;
 
     List<DeviceStatus> getLatestDeviceStatusesFromDb() throws Exception;
+
+    List<DeviceStatus> getDeviceStatusLast24Hours(String deviceId);
 }

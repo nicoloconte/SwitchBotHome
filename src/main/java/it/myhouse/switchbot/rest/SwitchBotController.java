@@ -6,6 +6,7 @@ import it.myhouse.switchbot.service.SwitchBotApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,6 +48,16 @@ public class SwitchBotController {
         } catch (Exception e) {
             logger.error("Error retrieving device statuses", e);
             throw new IllegalStateException("Unable to retrieve device statuses", e);
+        }
+    }
+
+    @GetMapping("/devices/status/history/{deviceId}")
+    public List<DeviceStatus> getDeviceStatusLast24Hours(@PathVariable String deviceId) {
+        try {
+            return switchBotApiService.getDeviceStatusLast24Hours(deviceId);
+        } catch (Exception e) {
+            logger.error("Error retrieving device status history for deviceId {}", deviceId, e);
+            throw new IllegalStateException("Unable to retrieve device status history", e);
         }
     }
 }
