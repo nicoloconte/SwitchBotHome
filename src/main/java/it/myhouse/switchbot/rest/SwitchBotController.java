@@ -13,13 +13,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/switchbot")
-public class SwitchBotRestController {
+public class SwitchBotController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SwitchBotRestController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SwitchBotController.class);
 
     private final SwitchBotApiService switchBotApiService;
 
-    public SwitchBotRestController(SwitchBotApiService switchBotApiService) {
+    public SwitchBotController(SwitchBotApiService switchBotApiService) {
         this.switchBotApiService = switchBotApiService;
     }
 

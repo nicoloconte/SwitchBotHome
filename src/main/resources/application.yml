@@ -30,3 +30,6 @@ spring:
 switchbot:
   token: ${SWITCHBOT_TOKEN}
   secret: ${SWITCHBOT_SECRET}
+meteobridge:
+  base-url: https://admin.meteobridge.com
+  username: meteobridge
