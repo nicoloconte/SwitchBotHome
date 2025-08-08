@@ -24,7 +24,7 @@ public interface DeviceStatusRepository extends JpaRepository<DeviceStatus, Long
             """, nativeQuery = true)
     List<DeviceStatus> findLatestForEachDevice();
 
-    @Query("SELECT d FROM DeviceStatus d WHERE d.deviceId = :deviceId AND d.createdAt >= :since")
+    @Query("SELECT d FROM DeviceStatus d WHERE d.deviceId = :deviceId AND d.createdAt >= :since ORDER BY d.createdAt ASC")
     List<DeviceStatus> findAllByDeviceIdAndCreatedAtAfter(@Param("deviceId") String deviceId, @Param("since") Instant since);
 
 }
