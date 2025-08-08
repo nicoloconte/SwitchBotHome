@@ -49,11 +49,10 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
     @Override
     public DeviceList getDeviceList() throws Exception {
         logger.debug("Fetching device list...");
-        HttpResponse<ApiResponse<DeviceList>> response = httpClient.send(
-                createRequest(generateSignature(), BASE_URL),
-                new JsonBodyHandler<>(new TypeReference<>() {})
-        );
-
+        HttpResponse<ApiResponse<DeviceList>> response = sendGetRequest(BASE_URL, new TypeReference<ApiResponse<DeviceList>>() {});
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Failed to fetch device list, status code: " + response.statusCode());
+        }
         DeviceList deviceList = response.body().getBody();
         logger.debug("Device list received: {}", deviceList);
         return deviceList;
@@ -76,10 +75,14 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
             }
 
             logger.debug("Fetching status for device: {}", device.getDeviceId());
-            HttpResponse<ApiResponse<DeviceStatus>> response = httpClient.send(
-                    createRequest(generateSignature(), BASE_URL + "/" + device.getDeviceId() + "/status"),
-                    new JsonBodyHandler<>(new TypeReference<>() {})
-            );
+            String statusUrl = BASE_URL + "/" + device.getDeviceId() + "/status";
+
+            HttpResponse<ApiResponse<DeviceStatus>> response = sendGetRequest(statusUrl, new TypeReference<ApiResponse<DeviceStatus>>() {});
+
+            if (response.statusCode() != 200) {
+                logger.warn("Failed to fetch status for device {} with status code {}", device.getDeviceId(), response.statusCode());
+                continue;
+            }
 
             DeviceStatus deviceStatus = response.body().getBody();
             deviceStatus.setName(device.getDeviceName());
@@ -103,26 +106,35 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
     }
 
     /**
-     * Genera una firma HMAC-SHA256 richiesta dall'API SwitchBot.
+     * Metodo generico per inviare una richiesta GET firmata.
      */
-    private String generateSignature() throws Exception {
-        String data = token + Instant.now().toEpochMilli() + UUID.randomUUID() + Math.random();
-        Mac mac = Mac.getInstance(HMAC_SHA_256);
-        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256));
-        return Base64.getEncoder().encodeToString(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)));
-    }
+    private <T> HttpResponse<T> sendGetRequest(String url, TypeReference<T> typeReference) throws Exception {
+        String nonce = UUID.randomUUID().toString();
+        String t = String.valueOf(Instant.now().toEpochMilli());
+        String signature = generateSignature(token, t, nonce);
 
-    /**
-     * Crea una richiesta HTTP GET con intestazioni necessarie per l'API SwitchBot.
-     */
-    private HttpRequest createRequest(String signature, String url) {
-        return HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", token)
                 .header("sign", signature)
-                .header("nonce", UUID.randomUUID().toString())
-                .header("t", String.valueOf(Instant.now().toEpochMilli()))
+                .header("nonce", nonce)
+                .header("t", t)
                 .GET()
                 .build();
+
+        logger.debug("Sending GET request to URL: {}, nonce: {}, t: {}, signature: {}", url, nonce, t, signature);
+        return httpClient.send(request, new JsonBodyHandler<>(typeReference));
     }
+
+    /**
+     * Genera la firma HMAC-SHA256 usando token, t e nonce.
+     */
+    private String generateSignature(String token, String t, String nonce) throws Exception {
+        String data = token + t + nonce;
+        Mac mac = Mac.getInstance(HMAC_SHA_256);
+        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256));
+        byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(rawHmac);
+    }
+
 }
