@@ -26,6 +26,8 @@ public class AppStartupLogger {
         log("DB USER", env.getProperty("spring.datasource.username"));
         logMasked("DB PWD", env.getProperty("spring.datasource.password"));
 
+        log("ENABLE_SCHEDULER", env.getProperty("ENABLE_SCHEDULER"));
+
         logger.info("==============================");
     }
 

@@ -7,8 +7,9 @@ import java.util.List;
 
 public interface SwitchBotApiService {
 
-    public DeviceList getDeviceList() throws Exception;
+    DeviceList getDeviceList() throws Exception;
 
-    public List<DeviceStatus> getDevicesStatus() throws Exception;
+    List<DeviceStatus> getDevicesStatus() throws Exception;
 
+    List<DeviceStatus> getLatestDeviceStatusesFromDb() throws Exception;
 }

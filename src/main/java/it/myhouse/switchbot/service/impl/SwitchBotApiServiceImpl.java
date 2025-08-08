@@ -5,6 +5,7 @@ import it.myhouse.switchbot.handler.JsonBodyHandler;
 import it.myhouse.switchbot.model.DeviceList;
 import it.myhouse.switchbot.model.DeviceStatus;
 import it.myhouse.switchbot.model.api.ApiResponse;
+import it.myhouse.switchbot.repository.DeviceStatusRepository;
 import it.myhouse.switchbot.service.SwitchBotApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,11 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
     private String secret;
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final DeviceStatusRepository repository;
+
+    public SwitchBotApiServiceImpl(DeviceStatusRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public DeviceList getDeviceList() throws Exception {
@@ -84,6 +90,16 @@ public class SwitchBotApiServiceImpl implements SwitchBotApiService {
 
         logger.debug("Total device statuses fetched: {}", statuses.size());
         return statuses;
+    }
+
+    /**
+     * Recupera l’ultimo stato registrato per ciascun device.
+     */
+    public List<DeviceStatus> getLatestDeviceStatusesFromDb() {
+        logger.debug("Fetching latest status for each device from DB...");
+        List<DeviceStatus> latestStatuses = repository.findLatestForEachDevice();
+        logger.debug("Retrieved {} latest device statuses from DB", latestStatuses.size());
+        return latestStatuses;
     }
 
     /**

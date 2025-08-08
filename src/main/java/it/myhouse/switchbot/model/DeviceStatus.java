@@ -2,6 +2,9 @@ package it.myhouse.switchbot.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "device_status")
@@ -24,6 +27,9 @@ public class DeviceStatus {
     private String hubDeviceId;
 
     private String name;
-    private long timestamp = System.currentTimeMillis();
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 
 }

@@ -2,6 +2,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/test/Prova.java
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -38,3 +39,6 @@ build/
 .DS_Store
 
 application-local.yml
+
+*.log
+*.gz
