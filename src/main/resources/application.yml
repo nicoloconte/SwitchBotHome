@@ -12,9 +12,9 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:postgresql://switchback.proxy.rlwy.net:50361/railway
+    url: ${RAILWAILY_DATABASE_URL}
     username: postgres
-    password: OzfemynQxWBLsjVrwHMiBmVBveYboGQe
+    password: ${RAILWAY_DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   config:
     import: optional:classpath:/application-local.yml
