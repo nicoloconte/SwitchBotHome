@@ -12,7 +12,7 @@ logging:
 
 spring:
   datasource:
-    url: ${RAILWAILY_DATABASE_URL}
+    url: jdbc:${RAILWAILY_DATABASE_URL}
     username: postgres
     password: ${RAILWAY_DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
